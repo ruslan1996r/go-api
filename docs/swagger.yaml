@@ -1,0 +1,225 @@
+definitions:
+  entities.Burger:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      ingredients:
+        items:
+          $ref: '#/definitions/entities.Ingredient'
+        type: array
+      name:
+        type: string
+      ordered:
+        type: integer
+    type: object
+  entities.BurgerFilter:
+    properties:
+      name:
+        type: string
+    type: object
+  entities.BurgerOrderRequest:
+    properties:
+      burger_id:
+        type: integer
+    type: object
+  entities.BurgerRequest:
+    properties:
+      ingredients:
+        items:
+          $ref: '#/definitions/entities.Ingredient'
+        type: array
+      name:
+        type: string
+    type: object
+  entities.Ingredient:
+    properties:
+      burger_id:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /burger:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Burgers filter
+        in: body
+        name: burger
+        required: true
+        schema:
+          $ref: '#/definitions/entities.BurgerFilter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Burgers array
+          schema:
+            items:
+              $ref: '#/definitions/entities.Burger'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Creates a new burger
+      tags:
+      - burger
+  /burger/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Burger ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Burger'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get burger by ID
+      tags:
+      - burger
+  /burger/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New burger payload
+        in: body
+        name: burger
+        required: true
+        schema:
+          $ref: '#/definitions/entities.BurgerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Burger ID
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Creates a new burger
+      tags:
+      - burger
+  /burger/order:
+    put:
+      consumes:
+      - application/json
+      description: Orders a burger and increments its internal state (ordered) by
+        1, which represents its popularity
+      parameters:
+      - description: New burger payload
+        in: body
+        name: burger
+        required: true
+        schema:
+          $ref: '#/definitions/entities.BurgerOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Order a new burger
+      tags:
+      - burger
+  /burger/popular:
+    get:
+      consumes:
+      - application/json
+      description: Get top 5 burgers. Popularity is based on number of orders (ordered
+        field)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Burger'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get popular burgers
+      tags:
+      - burger
+  /burger/random:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Burger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get random burger
+      tags:
+      - burger
+  /ingredients:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Ingredients with a lowercase letter separated by commas
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Burger'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get a list of burgers containing the selected ingredients
+      tags:
+      - burger
+swagger: "2.0"
